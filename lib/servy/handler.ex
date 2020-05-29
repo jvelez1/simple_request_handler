@@ -38,6 +38,10 @@ defmodule Servy.Handler do
     %{ conv | body: "card #{id}", status: 200 }
   end
 
+  def route(%Conv{method: "POST", path: "/animals"} = conv) do
+    %{ conv | body: "Animal Created! animal: #{conv.params["name"]} type: #{conv.params["type"]}", status: 201 }
+  end
+
   # def route(%Conv{method: "GET", path: "/about"} = conv) do
   #   file_path =
   #     Path.expand("../../pages", __DIR__)
@@ -92,6 +96,7 @@ GET /animals HTTP/1.1
 Host: example.com
 User-Agent: Browser/1.0
 Accept: */*
+
 """
 
 # car = """
@@ -99,6 +104,7 @@ Accept: */*
 # Host: example.com
 # User-Agent: Browser/1.0
 # Accept: */*
+
 # """
 
 # car_id = """
@@ -106,6 +112,7 @@ Accept: */*
 # Host: example.com
 # User-Agent: Browser/1.0
 # Accept: */*
+
 # """
 
 # requesti = """
@@ -113,6 +120,7 @@ Accept: */*
 # Host: example.com
 # User-Agent: Browser/1.0
 # Accept: */*
+
 # """
 
 # things = """
@@ -120,6 +128,7 @@ Accept: */*
 # Host: example.com
 # User-Agent: Browser/1.0
 # Accept: */*
+
 # """
 
 about = """
@@ -127,6 +136,18 @@ GET /about HTTP/1.1
 Host: example.com
 User-Agent: Browser/1.0
 Accept: */*
+
+"""
+
+post_animal = """
+POST /animals HTTP/1.1
+Host: example.com
+User-Agent: Browser/1.0
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Content-Lenght: 21
+
+name=Bear&type=Brown
 """
 
 Servy.Handler.handle(request)
@@ -135,3 +156,4 @@ Servy.Handler.handle(request)
 # Servy.Handler.handle(requesti)
 # Servy.Handler.handle(things)
 Servy.Handler.handle(about)
+Servy.Handler.handle(post_animal)
