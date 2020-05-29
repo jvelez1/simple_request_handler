@@ -1,4 +1,17 @@
 defmodule Servy.Handler do
+  @moduledoc """
+    Handles HTTP requests.
+  """
+
+  @pages_path Path.expand("../../pages", __DIR__)
+
+  alias Servy.Conv
+  import Servy.Plugins
+  import Servy.Parser
+
+  @doc """
+    Transforms the request into a response
+  """
   def handle(request) do
     request
     |> parse
@@ -9,52 +22,23 @@ defmodule Servy.Handler do
     |> format_response
   end
 
-  def parse(request) do
-    [method, path, _] =
-      request
-      |> String.split("\n")
-      |> List.first
-      |> String.split(" ")
-
-    %{ method: method,
-       path: path,
-       body: "",
-       status: nil
-    }
-  end
-
-  def rewrite_path(%{path: "/animals"} = conv) do
-    %{ conv | path: "/animals" }
-  end
-
-  def rewrite_path(conv), do: conv
-
-  def track(%{status: 404, path: path} = conv) do
-    IO.puts "WARNING! #{path} is on the loose!"
-    conv
-  end
-
-  def track(conv), do: conv
-
-  def log(conv), do: IO.inspect(conv)
-
   # def route(conv) do
   #   route(conv, conv.method ,conv.path)
   # end
 
-  def route(%{method: "GET", path: "/animals"} = conv) do
+  def route(%Conv{method: "GET", path: "/animals"} = conv) do
     %{ conv | body: "Lion, Dog, Cat", status: 200 }
   end
 
-  def route(%{method: "GET", path: "/cars"} = conv) do
+  def route(%Conv{method: "GET", path: "/cars"} = conv) do
     %{ conv | body: "Ford, Mazda, Chevrolet", status: 200 }
   end
 
-  def route(%{method: "GET", path: "/cars" <> id} = conv) do
+  def route(%Conv{method: "GET", path: "/cars" <> id} = conv) do
     %{ conv | body: "card #{id}", status: 200 }
   end
 
-  # def route(%{method: "GET", path: "/about"} = conv) do
+  # def route(%Conv{method: "GET", path: "/about"} = conv) do
   #   file_path =
   #     Path.expand("../../pages", __DIR__)
   #     |> Path.join("about.html")
@@ -69,8 +53,8 @@ defmodule Servy.Handler do
   #   end
   # end
 
-  def route(%{method: "GET", path: "/about"} = conv) do
-    Path.expand("../../pages", __DIR__)
+  def route(%Conv{method: "GET", path: "/about"} = conv) do
+    @pages_path
     |> Path.join("about.html")
     |> File.read
     |> handle_file(conv)
@@ -92,25 +76,14 @@ defmodule Servy.Handler do
     %{ conv | body: "Not valid for #{path}", status: 404 }
   end
 
-  def format_response(conv) do
+  def format_response(%Conv{} = conv) do
     IO.inspect("""
-      HTTP/1.1 #{conv.status} #{status_reason(conv.status)}
+      HTTP/1.1 #{Conv.full_status(conv)}
       Content-Type: text/html
       Content-Length #{String.length(conv.body)}
 
       #{conv.body}
     """)
-  end
-
-  defp status_reason(code) do
-    %{
-      200 => "OK!",
-      201 => "Created",
-      401 => "Unauthorized",
-      403 => "Forbidden",
-      404 => "Not Found",
-      500 => "Internal Server Error"
-    }[code]
   end
 end
 
