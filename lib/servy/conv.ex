@@ -2,6 +2,7 @@ defmodule Servy.Conv do
   defstruct method: "",
             path: "",
             params: nil,
+            headers: nil,
             body: "",
             status: nil
 
