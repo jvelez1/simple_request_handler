@@ -1,0 +1,4 @@
+<h1>Show Car</h1>
+<p>
+  <%= car.brand %> color: <strong><%= car.color %></strong>
+</p>

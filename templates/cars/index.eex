@@ -1,0 +1,7 @@
+<h1>Cars</h1>
+
+<ul>
+  <%= for car <- cars do %>
+    <li><%= car.brand %> - <%= car.type  %> - <%= car.color  %></li>
+  <% end %>
+</ul>
