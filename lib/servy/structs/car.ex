@@ -23,6 +23,10 @@ defmodule Servy.Structs.Car do
     ]
   end
 
+  def order_by_name(car1, car2) do
+    car1.brand <= car2.brand
+  end
+
   def find(id) when is_integer(id) do
     Enum.find(list(), fn(car) -> car.id == id end)
   end
