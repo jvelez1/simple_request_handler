@@ -2,10 +2,10 @@ defmodule Servy.Handler do
   @moduledoc """
     Handles HTTP requests.
   """
-
   @pages_path Path.expand("../../pages", __DIR__)
 
   alias Servy.Conv
+  alias Servy.Controllers.CarController
   import Servy.Plugins
   import Servy.Parser
 
@@ -22,20 +22,21 @@ defmodule Servy.Handler do
     |> format_response
   end
 
-  # def route(conv) do
-  #   route(conv, conv.method ,conv.path)
-  # end
-
   def route(%Conv{method: "GET", path: "/animals"} = conv) do
     %{ conv | body: "Lion, Dog, Cat", status: 200 }
   end
 
   def route(%Conv{method: "GET", path: "/cars"} = conv) do
-    %{ conv | body: "Ford, Mazda, Chevrolet", status: 200 }
+    CarController.index(conv)
   end
 
   def route(%Conv{method: "GET", path: "/cars" <> id} = conv) do
-    %{ conv | body: "card #{id}", status: 200 }
+    params = Map.put(conv.params, "id", id)
+    CarController.show(conv, params)
+  end
+
+  def route(%Conv{method: "POST", path: "/cars"} = conv) do
+    CarController.create(conv, conv.params)
   end
 
   def route(%Conv{method: "POST", path: "/animals"} = conv) do
@@ -91,29 +92,29 @@ defmodule Servy.Handler do
   end
 end
 
-request = """
-GET /animals HTTP/1.1
+# request = """
+# GET /animals HTTP/1.1
+# Host: example.com
+# User-Agent: Browser/1.0
+# Accept: */*
+
+# """
+
+car = """
+GET /cars HTTP/1.1
 Host: example.com
 User-Agent: Browser/1.0
 Accept: */*
 
 """
 
-# car = """
-# GET /cars HTTP/1.1
-# Host: example.com
-# User-Agent: Browser/1.0
-# Accept: */*
+car_id = """
+GET /cars/1 HTTP/1.1
+Host: example.com
+User-Agent: Browser/1.0
+Accept: */*
 
-# """
-
-# car_id = """
-# GET /cars/1 HTTP/1.1
-# Host: example.com
-# User-Agent: Browser/1.0
-# Accept: */*
-
-# """
+"""
 
 # requesti = """
 # GET /invalid HTTP/1.1
@@ -150,10 +151,21 @@ Content-Lenght: 21
 name=Bear&type=Brown
 """
 
-Servy.Handler.handle(request)
+post_car = """
+POST /cars HTTP/1.1
+Host: example.com
+User-Agent: Browser/1.0
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Content-Lenght: 21
+
+brand=Ford&type=Fiesta
+"""
+# Servy.Handler.handle(request)
 # Servy.Handler.handle(car)
 # Servy.Handler.handle(car_id)
+Servy.Handler.handle(post_car)
 # Servy.Handler.handle(requesti)
 # Servy.Handler.handle(things)
-Servy.Handler.handle(about)
-Servy.Handler.handle(post_animal)
+# Servy.Handler.handle(about)
+# Servy.Handler.handle(post_animal)
