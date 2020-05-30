@@ -30,7 +30,7 @@ defmodule Servy.Handler do
     CarController.index(conv)
   end
 
-  def route(%Conv{method: "GET", path: "/cars" <> id} = conv) do
+  def route(%Conv{method: "GET", path: "/cars/" <> id} = conv) do
     params = Map.put(conv.params, "id", id)
     CarController.show(conv, params)
   end
@@ -109,7 +109,7 @@ Accept: */*
 """
 
 car_id = """
-GET /cars/1 HTTP/1.1
+GET /cars/5 HTTP/1.1
 Host: example.com
 User-Agent: Browser/1.0
 Accept: */*
@@ -163,8 +163,8 @@ brand=Ford&type=Fiesta
 """
 # Servy.Handler.handle(request)
 # Servy.Handler.handle(car)
-# Servy.Handler.handle(car_id)
-Servy.Handler.handle(post_car)
+Servy.Handler.handle(car_id)
+Servy.Handler.handle(car)
 # Servy.Handler.handle(requesti)
 # Servy.Handler.handle(things)
 # Servy.Handler.handle(about)

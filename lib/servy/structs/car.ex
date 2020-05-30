@@ -22,4 +22,12 @@ defmodule Servy.Structs.Car do
       %Car{id: 10, brand: "SEAT", type: "Grizzly"}
     ]
   end
+
+  def find(id) when is_integer(id) do
+    Enum.find(list(), fn(car) -> car.id == id end)
+  end
+
+  def find(id) when is_binary(id) do
+    id |> String.to_integer |> find
+  end
 end

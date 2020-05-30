@@ -2,13 +2,18 @@ defmodule Servy.Controllers.CarController do
   alias Servy.Structs.Car
 
   def index(conv) do
-    IO.inspect(Car.list)
-    #TODDO
-    %{ conv | body: "Ford, Mazda, Chevrolet", status: 200 }
+    cars =
+      Car.list
+      |> Enum.sort(fn(car1, car2) -> car1.brand <= car2.brand end)
+      |> Enum.map(fn(car) -> "<li>#{car.brand} #{car.type}</li>" end)
+      |> Enum.join
+
+    %{ conv | body: "<ul>#{cars}</ul>", status: 200 }
   end
 
   def show(conv, %{"id" => id} = _params) do
-    %{ conv | body: "card #{id} Ford", status: 200 }
+    car = Car.find(id)
+    %{ conv | body: "<h1> Car #{car.id}: #{car.brand} #{car.type} </h1>", status: 200 }
   end
 
   def create(conv, %{"brand" => brand, "type" => type} = params) do
