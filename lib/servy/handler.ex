@@ -65,6 +65,10 @@ defmodule Servy.Handler do
     |> handle_file(conv)
   end
 
+  def route(%{path: path} = conv) do
+    %{ conv | body: "Not valid for #{path}", status: 404 }
+  end
+
   def handle_file({:ok, content}, conv) do
     %{ conv | status: 200, body: content }
   end
@@ -77,95 +81,13 @@ defmodule Servy.Handler do
     %{ conv | status: 500, body: "Internal Server error: #{reason}"}
   end
 
-  def route(%{path: path} = conv) do
-    %{ conv | body: "Not valid for #{path}", status: 404 }
-  end
-
   def format_response(%Conv{} = conv) do
-    IO.inspect("""
-      HTTP/1.1 #{Conv.full_status(conv)}
-      Content-Type: text/html
-      Content-Length #{String.length(conv.body)}
-
-      #{conv.body}
-    """)
+    """
+    HTTP/1.1 #{Conv.full_status(conv)}\r
+    Content-Type: text/html\r
+    Content-Length: #{String.length(conv.body)}\r
+    \r
+    #{conv.body}
+    """
   end
 end
-
-# request = """
-# GET /animals HTTP/1.1
-# Host: example.com
-# User-Agent: Browser/1.0
-# Accept: */*
-
-# """
-
-car = """
-GET /cars HTTP/1.1
-Host: example.com
-User-Agent: Browser/1.0
-Accept: */*
-
-"""
-
-car_id = """
-GET /cars/5 HTTP/1.1
-Host: example.com
-User-Agent: Browser/1.0
-Accept: */*
-
-"""
-
-# requesti = """
-# GET /invalid HTTP/1.1
-# Host: example.com
-# User-Agent: Browser/1.0
-# Accept: */*
-
-# """
-
-# things = """
-# GET /things HTTP/1.1
-# Host: example.com
-# User-Agent: Browser/1.0
-# Accept: */*
-
-# """
-
-about = """
-GET /about HTTP/1.1
-Host: example.com
-User-Agent: Browser/1.0
-Accept: */*
-
-"""
-
-post_animal = """
-POST /animals HTTP/1.1
-Host: example.com
-User-Agent: Browser/1.0
-Accept: */*
-Content-Type: application/x-www-form-urlencoded
-Content-Lenght: 21
-
-name=Bear&type=Brown
-"""
-
-post_car = """
-POST /cars HTTP/1.1
-Host: example.com
-User-Agent: Browser/1.0
-Accept: */*
-Content-Type: application/x-www-form-urlencoded
-Content-Lenght: 21
-
-brand=Ford&type=Fiesta
-"""
-# Servy.Handler.handle(request)
-# Servy.Handler.handle(car)
-Servy.Handler.handle(car_id)
-Servy.Handler.handle(car)
-# Servy.Handler.handle(requesti)
-# Servy.Handler.handle(things)
-# Servy.Handler.handle(about)
-# Servy.Handler.handle(post_animal)
