@@ -151,6 +151,36 @@ defmodule HandlerTest do
     """
   end
 
+  test "GET /api/cars" do
+    request = """
+    GET /api/cars HTTP/1.1\r
+    Host: example.com\r
+    User-Agent: ExampleBrowser/1.0\r
+    Accept: */*\r
+    \r
+    """
+
+    response = handle(request)
+
+    expected_response = """
+    HTTP/1.1 200 OK!\r
+    Content-Type: application/json\r
+    Content-Length: 566\r
+    \r
+    [{"type":"Fiesta","id":1,"color":"Blue","brand":"Ford"},
+      {"type":"Corsa","id":2,"color":"Black","brand":"Chevrolet"},
+      {"type":"3","id":3,"color":"Black","brand":"Mazda"},
+      {"type":"Range","id":4,"color":"green","brand":"Dodge"},
+      {"type":"Polar","id":5,"color":"Black","brand":"Renault"},
+      {"type":"Grizzly","id":6,"color":"Black","brand":"Nissan"},
+      {"type":"CC","id":7,"color":"green","brand":"Toyota"},
+      {"type":"Panda","id":8,"color":"Black","brand":"Suzuki"},
+      {"type":"Polar","id":9,"color":"green","brand":"Honda"},
+      {"type":"Grizzly","id":10,"color":"Black","brand":"SEAT"}]
+    """
+    assert remove_whitespace(response) == remove_whitespace(expected_response)
+  end
+
   defp remove_whitespace(text) do
     String.replace(text, ~r{\s}, "")
   end

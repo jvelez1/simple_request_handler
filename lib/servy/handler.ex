@@ -6,6 +6,7 @@ defmodule Servy.Handler do
 
   alias Servy.Conv
   alias Servy.Controllers.CarController
+  alias Servy.Controllers.Api
   import Servy.Plugins
   import Servy.Parser
 
@@ -28,6 +29,10 @@ defmodule Servy.Handler do
 
   def route(%Conv{method: "GET", path: "/cars"} = conv) do
     CarController.index(conv)
+  end
+
+  def route(%Conv{method: "GET", path: "/api/cars"} = conv) do
+    Api.CarController.index(conv)
   end
 
   def route(%Conv{method: "GET", path: "/cars/" <> id} = conv) do
@@ -84,7 +89,7 @@ defmodule Servy.Handler do
   def format_response(%Conv{} = conv) do
     """
     HTTP/1.1 #{Conv.full_status(conv)}\r
-    Content-Type: text/html\r
+    Content-Type: #{conv.response_content_type}\r
     Content-Length: #{String.length(conv.body)}\r
     \r
     #{conv.body}
