@@ -8,6 +8,7 @@ defmodule Servy.Handler do
   alias Servy.Controllers.CarController
   alias Servy.Controllers.Api
   alias Servy.VideoCam
+  alias Servy.Fetcher
   import Servy.Plugins
   import Servy.Parser
 
@@ -25,17 +26,15 @@ defmodule Servy.Handler do
   end
 
   def route(%Conv{ method: "GET", path: "/snapshots" } = conv) do
-    parent = self() # the request-handling process
-
     # Sending Messages
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-1")}) end)
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-2")}) end)
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-3")}) end)
+    Fetcher.asycn(fn -> VideoCam.get_snapshot("cam-1") end)
+    Fetcher.asycn(fn -> VideoCam.get_snapshot("cam-2") end)
+    Fetcher.asycn(fn -> VideoCam.get_snapshot("cam-3") end)
 
     # Receiving Messages
-    snapshot1 = receive do {:result, filename} -> filename end
-    snapshot2 = receive do {:result, filename} -> filename end
-    snapshot3 = receive do {:result, filename} -> filename end
+    snapshot1 = Fetcher.get_result()
+    snapshot2 = Fetcher.get_result()
+    snapshot3 = Fetcher.get_result()
 
     snapshots = [snapshot1, snapshot2, snapshot3]
 
