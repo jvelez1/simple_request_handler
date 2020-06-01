@@ -23,6 +23,17 @@ defmodule Servy.Handler do
     |> format_response
   end
 
+  def route(%Conv{method: "GET", path: "/boom"} = _conv) do
+    raise "BOOM"
+  end
+
+  def route(%Conv{method: "GET", path: "/sleep/" <> time} = conv) do
+    time |> String.to_integer |> :timer.sleep
+
+    %{ conv | body: "I'm awake again!", status: 200 }
+  end
+
+
   def route(%Conv{method: "GET", path: "/animals"} = conv) do
     %{ conv | body: "Lion, Dog, Cat", status: 200 }
   end
