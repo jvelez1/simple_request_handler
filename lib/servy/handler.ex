@@ -8,7 +8,6 @@ defmodule Servy.Handler do
   alias Servy.Controllers.CarController
   alias Servy.Controllers.Api
   alias Servy.VideoCam
-  alias Servy.Fetcher
   import Servy.Plugins
   import Servy.Parser
 
@@ -27,16 +26,10 @@ defmodule Servy.Handler do
 
   def route(%Conv{ method: "GET", path: "/snapshots" } = conv) do
     # Sending Messages
-    Fetcher.asycn(fn -> VideoCam.get_snapshot("cam-1") end)
-    Fetcher.asycn(fn -> VideoCam.get_snapshot("cam-2") end)
-    Fetcher.asycn(fn -> VideoCam.get_snapshot("cam-3") end)
-
-    # Receiving Messages
-    snapshot1 = Fetcher.get_result()
-    snapshot2 = Fetcher.get_result()
-    snapshot3 = Fetcher.get_result()
-
-    snapshots = [snapshot1, snapshot2, snapshot3]
+    snapshots =
+      ["cam-1", "cam-2", "cam-3"]
+      |> Enum.map(&Task.async(fn -> VideoCam.get_snapshot(&1) end))
+      |> Enum.map(&Task.await/1) # wait for messages it matches with a PID
 
     %{ conv | status: 200, body: inspect snapshots}
   end
